@@ -24,6 +24,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.XR;
 
 namespace cCharkes
 {
@@ -194,6 +195,7 @@ namespace cCharkes
         public static RenderTexture CreateRenderTexture(int w, int h, int d, RenderTextureFormat f, bool useMipMap, bool generateMipMap, FilterMode filterMode)
         {
             RenderTexture r = new RenderTexture(w, h, d, f);
+            r.vrUsage = VRTextureUsage.TwoEyes;
             r.filterMode = filterMode;
             r.useMipMap = useMipMap;
             r.autoGenerateMips = generateMipMap;
@@ -355,7 +357,21 @@ namespace cCharkes
 
         private RenderTexture CreateTempBuffer(int x, int y, int depth, RenderTextureFormat format)
         {
-            return RenderTexture.GetTemporary(x, y, depth, format);
+
+            if (XRSettings.enabled)
+            {
+                RenderTextureDescriptor desc = XRSettings.eyeTextureDesc;
+                desc.width = x;
+                desc.height = y;
+                desc.depthBufferBits = depth;
+                desc.colorFormat = format;
+                //desc.sRGB = (QualitySettings.activeColorSpace == ColorSpace.Linear);
+                return RenderTexture.GetTemporary(desc);
+            }
+            else
+            {
+                return RenderTexture.GetTemporary(x, y, depth, format);
+            }  
         }
 
         private void ReleaseTempBuffer(RenderTexture rt)

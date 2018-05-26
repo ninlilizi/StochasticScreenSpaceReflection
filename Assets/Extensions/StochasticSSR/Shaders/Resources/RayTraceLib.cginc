@@ -31,7 +31,7 @@ float4 RayMarch(sampler2D tex, float4x4 _ProjectionMatrix, float3 viewDir, int N
 		0.0
 	);
 
-	float linearDepth  =  LinearEyeDepth(tex2D(tex, screenUV.xy));
+	float linearDepth  =  LinearEyeDepth(tex2D(tex, UnityStereoTransformScreenSpaceTex(screenUV).xy));
 
 	/*float4 rayProj = mul (_ProjectionMatrix, float4(viewDir + viewPos, 1.0f));
 	float3 rayDir = normalize( rayProj.xyz / rayProj.w - screenPos);
