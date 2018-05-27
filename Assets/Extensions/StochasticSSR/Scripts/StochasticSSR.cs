@@ -99,7 +99,7 @@ namespace cCharkes
         bool reduceFireflies = true;
 
         [SerializeField]
-        bool useMipMap = true;
+        bool useMipMap = false;
 
         //[SerializeField]
         int maxMipMap = 5;
@@ -502,6 +502,9 @@ namespace cCharkes
             ReleaseTempBuffer(depthBuffer);
 
             RenderTexture resolvePass = CreateTempBuffer(resolveWidth, resolveHeight, 0, RenderTextureFormat.DefaultHDR);
+
+            // Nin - Force disable due to artifacting
+            useMipMap = false;
 
             if (useMipMap)
             {

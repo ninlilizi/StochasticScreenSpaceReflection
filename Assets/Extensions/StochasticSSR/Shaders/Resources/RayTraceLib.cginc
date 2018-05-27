@@ -20,8 +20,18 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+half4 tex_ST;
+
 float4 RayMarch(sampler2D tex, float4x4 _ProjectionMatrix, float3 viewDir, int NumSteps, float3 viewPos, float3 screenPos, float2 screenUV, float stepSize, float thickness)
 {
+#if UNITY_SINGLE_PASS_STEREO
+	// If Single-Pass Stereo mode is active, transform the
+	// coordinates to get the correct output UV for the current eye.
+	float4 scaleOffset = unity_StereoScaleOffset[unity_StereoEyeIndex];
+	screenUV = (screenUV - scaleOffset.zw) / scaleOffset.xy;
+
+#endif
+
 	//float3 dirProject = _Project;
 	float4 dirProject = float4
 	(
@@ -31,7 +41,7 @@ float4 RayMarch(sampler2D tex, float4x4 _ProjectionMatrix, float3 viewDir, int N
 		0.0
 	);
 
-	float linearDepth  =  LinearEyeDepth(tex2D(tex, screenUV.xy));
+	float linearDepth  =  LinearEyeDepth(tex2D(tex, UnityStereoScreenSpaceUVAdjust(screenUV, tex_ST).xy));
 
 	/*float4 rayProj = mul (_ProjectionMatrix, float4(viewDir + viewPos, 1.0f));
 	float3 rayDir = normalize( rayProj.xyz / rayProj.w - screenPos);

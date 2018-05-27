@@ -84,8 +84,12 @@ uniform int			_UseNormalization;
 uniform int			_Fireflies;
 uniform int			_MaxMipMap;
 
+half4 _ReflectionBuffer_ST;
+half4 _CameraGBufferTexture0_ST;
+half4 _CameraGBufferTexture1_ST;
+half4 _CameraGBufferTexture2_ST;
 half4 _CameraReflectionsTexture_ST;
-half4 _CameraDepthTexture_ST;
+half4 _CameraMotionVectorsTexture_ST;
 
 float sqr(float x)
 {
@@ -97,20 +101,20 @@ float fract(float x)
 	return x - floor( x );
 }
 
-float4 GetSampleColor (sampler2D tex, float2 uv) { return tex2D(tex, UnityStereoTransformScreenSpaceTex(uv)); }
-float4 GetCubeMap (float2 uv) { return tex2D(_CameraReflectionsTexture, UnityStereoTransformScreenSpaceTex(uv)); }
-float4 GetAlbedo (float2 uv) { return tex2D(_CameraGBufferTexture0, UnityStereoTransformScreenSpaceTex(uv)); }
-float4 GetSpecular (float2 uv) { return tex2D(_CameraGBufferTexture1, UnityStereoTransformScreenSpaceTex(uv)); }
+float4 GetSampleColor (sampler2D tex, float2 uv) { return tex2D(tex, uv); }
+float4 GetCubeMap (float2 uv) { return tex2D(_CameraReflectionsTexture, UnityStereoScreenSpaceUVAdjust(uv, _CameraReflectionsTexture_ST)); }
+float4 GetAlbedo (float2 uv) { return tex2D(_CameraGBufferTexture0, UnityStereoScreenSpaceUVAdjust(uv, _CameraGBufferTexture0_ST)); }
+float4 GetSpecular (float2 uv) { return tex2D(_CameraGBufferTexture1, UnityStereoScreenSpaceUVAdjust(uv, _CameraGBufferTexture1_ST)); }
 float GetRoughness (float smoothness) { return max(min(_SmoothnessRange, 1 - smoothness), 0.05f); }
 float4 GetNormal (float2 uv) 
 { 
-	float4 gbuffer2 = tex2D(_CameraGBufferTexture2, UnityStereoTransformScreenSpaceTex(uv));
+	float4 gbuffer2 = tex2D(_CameraGBufferTexture2, UnityStereoScreenSpaceUVAdjust(uv, _CameraGBufferTexture2_ST));
 
 	return gbuffer2*2-1;
 }
 
-float4 GetVelocity(float2 uv)    { return tex2D(_CameraMotionVectorsTexture, UnityStereoTransformScreenSpaceTex(uv)); }
-float4 GetReflection(float2 uv)    { return tex2D(_ReflectionBuffer, UnityStereoTransformScreenSpaceTex(uv)); }
+float4 GetVelocity(float2 uv)    { return tex2D(_CameraMotionVectorsTexture, UnityStereoScreenSpaceUVAdjust(uv, _CameraMotionVectorsTexture_ST)); }
+float4 GetReflection(float2 uv)    { return tex2D(_ReflectionBuffer, UnityStereoScreenSpaceUVAdjust(uv, _ReflectionBuffer_ST)); }
 
 float ComputeDepth(float4 clippos)
 {
