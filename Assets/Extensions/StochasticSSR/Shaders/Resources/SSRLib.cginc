@@ -135,7 +135,7 @@ float3 GetViewNormal (float3 normal)
 
 float GetDepth (sampler2D tex, float2 uv)
 {
-	float z = tex2Dlod(_CameraDepthTexture, (float4(UnityStereoTransformScreenSpaceTex(uv),0,0)));
+	float z = tex2Dlod(_CameraDepthTexture, (float4(uv,0,0)));
 	#if defined(UNITY_REVERSED_Z)
 		z = 1.0f - z;
 	#endif
@@ -144,13 +144,13 @@ float GetDepth (sampler2D tex, float2 uv)
 
 float3 GetScreenPos (float2 uv, float depth)
 {
-	return float3(UnityStereoTransformScreenSpaceTex(uv).xy * 2 - 1, depth);
+	return float3(uv.xy * 2 - 1, depth);
 }
 
 float3 GetViewRayFromUv(float2 uv)
 {
 	float4 _CamScreenDir = float4(1.0 / _ProjectionMatrix[0][0], 1.0 / _ProjectionMatrix[1][1], 1, 1);
-	float3 ray = float3(UnityStereoTransformScreenSpaceTex(uv).x * 2 - 1, UnityStereoTransformScreenSpaceTex(uv).y * 2 - 1, 1);
+	float3 ray = float3(uv.x * 2 - 1, uv.y * 2 - 1, 1);
 	ray *= _CamScreenDir.xyz;
 	ray = ray * (_ProjectionParams.z / ray.z);
 	return ray;
@@ -198,7 +198,7 @@ float RayAttenBorder (float2 pos, float value)
 
 inline half2 CalculateMotion(float rawDepth, float2 inUV)
 {
-	float3 screenPos = GetScreenPos(UnityStereoTransformScreenSpaceTex(inUV), rawDepth);
+	float3 screenPos = GetScreenPos(inUV, rawDepth);
 	float4 worldPos = float4(GetWorlPos(screenPos),1);
 
 	float4 prevClipPos = mul(_PrevViewProjectionMatrix, worldPos);
