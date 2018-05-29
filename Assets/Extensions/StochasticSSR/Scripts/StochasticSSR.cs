@@ -31,6 +31,7 @@ namespace cCharkes
     [System.Serializable]
     public enum ResolutionMode
     {
+        QuartRes = 3,
         halfRes = 2,
         fullRes = 1,
     };
@@ -57,7 +58,6 @@ namespace cCharkes
 
 
     [RequireComponent(typeof(Camera))]
-    [AddComponentMenu("cCharkes/Image Effects/Rendering/Stochastic Screen Space Reflection")]
     public class StochasticSSR : MonoBehaviour
     {
         [Header("RayCast")]
@@ -99,7 +99,7 @@ namespace cCharkes
         bool reduceFireflies = true;
 
         [SerializeField]
-        bool useMipMap = false;
+        bool useMipMap = true;
 
         //[SerializeField]
         int maxMipMap = 5;
@@ -246,21 +246,21 @@ namespace cCharkes
 
             if (temporalBuffer == null || !temporalBuffer.IsCreated())
             {
-                temporalBuffer = CreateRenderTexture(width, height, 0, RenderTextureFormat.DefaultHDR, false, false, FilterMode.Bilinear);
+                temporalBuffer = CreateRenderTexture(width, height, 0, RenderTextureFormat.Default, false, false, FilterMode.Bilinear);
 
             }
 
             if (mainBuffer0 == null || !mainBuffer0.IsCreated())
             {
-                mainBuffer0 = CreateRenderTexture(width, height, 0, RenderTextureFormat.DefaultHDR, false, false, FilterMode.Bilinear);
-                mainBuffer1 = CreateRenderTexture(width, height, 0, RenderTextureFormat.DefaultHDR, false, false, FilterMode.Bilinear);
+                mainBuffer0 = CreateRenderTexture(width, height, 0, RenderTextureFormat.Default, false, false, FilterMode.Bilinear);
+                mainBuffer1 = CreateRenderTexture(width, height, 0, RenderTextureFormat.Default, false, false, FilterMode.Bilinear);
             }
 
             if (mipMapBuffer0 == null || !mipMapBuffer0.IsCreated())
             {
-                mipMapBuffer0 = CreateRenderTexture(width, height, 0, RenderTextureFormat.DefaultHDR, true, true, FilterMode.Bilinear); // Need to be power of two
-                mipMapBuffer1 = CreateRenderTexture(width, height, 0, RenderTextureFormat.DefaultHDR, true, true, FilterMode.Bilinear); // Need to be power of two
-                mipMapBuffer2 = CreateRenderTexture(width, height, 0, RenderTextureFormat.DefaultHDR, true, false, FilterMode.Bilinear); // Need to be power of two
+                mipMapBuffer0 = CreateRenderTexture(width, height, 0, RenderTextureFormat.Default, true, true, FilterMode.Bilinear); // Need to be power of two
+                mipMapBuffer1 = CreateRenderTexture(width, height, 0, RenderTextureFormat.Default, true, true, FilterMode.Bilinear); // Need to be power of two
+                mipMapBuffer2 = CreateRenderTexture(width, height, 0, RenderTextureFormat.Default, true, false, FilterMode.Bilinear); // Need to be power of two
             }
         }
 
@@ -336,6 +336,7 @@ namespace cCharkes
 
         private void UpdatePrevMatrices(RenderTexture source, RenderTexture destination)
         {
+
             worldToCameraMatrix = m_camera.worldToCameraMatrix;
             cameraToWorldMatrix = worldToCameraMatrix.inverse;
 
@@ -365,7 +366,7 @@ namespace cCharkes
                 desc.height = y;
                 desc.depthBufferBits = depth;
                 desc.colorFormat = format;
-                //desc.sRGB = (QualitySettings.activeColorSpace == ColorSpace.Linear);
+                desc.sRGB = (QualitySettings.activeColorSpace == ColorSpace.Linear);
                 return RenderTexture.GetTemporary(desc);
             }
             else
@@ -502,9 +503,6 @@ namespace cCharkes
             ReleaseTempBuffer(depthBuffer);
 
             RenderTexture resolvePass = CreateTempBuffer(resolveWidth, resolveHeight, 0, RenderTextureFormat.DefaultHDR);
-
-            // Nin - Force disable due to artifacting
-            useMipMap = false;
 
             if (useMipMap)
             {

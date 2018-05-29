@@ -1,4 +1,4 @@
-	//The MIT License(MIT)
+//The MIT License(MIT)
 
 //Copyright(c) 2016 Charles Greivelding Thomas
 
@@ -19,24 +19,24 @@
 //LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
-	
+
 #include "UnityStandardBRDF.cginc"
 
 #define PI 3.141592
 
 uniform sampler2D	_MainTex,
-					_ReflectionBuffer,
-					_PreviousBuffer,
-					_RayCast,
-					_RayCastMask;
+_ReflectionBuffer,
+_PreviousBuffer,
+_RayCast,
+_RayCastMask;
 
 uniform	sampler2D	_Noise;
 
 uniform sampler2D	_CameraGBufferTexture0,
-					_CameraGBufferTexture1,
-					_CameraGBufferTexture2,
-					_CameraReflectionsTexture;
-	
+_CameraGBufferTexture1,
+_CameraGBufferTexture2,
+_CameraReflectionsTexture;
+
 uniform sampler2D	_CameraDepthTexture; // Unity depth
 uniform sampler2D	_CameraDepthBuffer;
 uniform sampler2D_half _CameraMotionVectorsTexture;
@@ -50,7 +50,7 @@ uniform float4		_Project;
 uniform float4		_GaussianDir;
 uniform float4		_JitterSizeAndOffset; // x = jitter width / screen width, y = jitter height / screen height, z = random offset, w = random offset
 
-uniform float		_EdgeFactor; 
+uniform float		_EdgeFactor;
 uniform float		_SmoothnessRange;
 uniform float		_BRDFBias;
 
@@ -84,37 +84,30 @@ uniform int			_UseNormalization;
 uniform int			_Fireflies;
 uniform int			_MaxMipMap;
 
-half4 _ReflectionBuffer_ST;
-half4 _CameraGBufferTexture0_ST;
-half4 _CameraGBufferTexture1_ST;
-half4 _CameraGBufferTexture2_ST;
-half4 _CameraReflectionsTexture_ST;
-half4 _CameraMotionVectorsTexture_ST;
-
 float sqr(float x)
 {
-	return x*x;
+	return x * x;
 }
-	
+
 float fract(float x)
 {
-	return x - floor( x );
+	return x - floor(x);
 }
 
-float4 GetSampleColor (sampler2D tex, float2 uv) { return tex2D(tex, uv); }
-float4 GetCubeMap (float2 uv) { return tex2D(_CameraReflectionsTexture, UnityStereoScreenSpaceUVAdjust(uv, _CameraReflectionsTexture_ST)); }
-float4 GetAlbedo (float2 uv) { return tex2D(_CameraGBufferTexture0, UnityStereoScreenSpaceUVAdjust(uv, _CameraGBufferTexture0_ST)); }
-float4 GetSpecular (float2 uv) { return tex2D(_CameraGBufferTexture1, UnityStereoScreenSpaceUVAdjust(uv, _CameraGBufferTexture1_ST)); }
-float GetRoughness (float smoothness) { return max(min(_SmoothnessRange, 1 - smoothness), 0.05f); }
-float4 GetNormal (float2 uv) 
-{ 
-	float4 gbuffer2 = tex2D(_CameraGBufferTexture2, UnityStereoScreenSpaceUVAdjust(uv, _CameraGBufferTexture2_ST));
+float4 GetSampleColor(sampler2D tex, float2 uv) { return tex2D(tex, uv); }
+float4 GetCubeMap(float2 uv) { return tex2D(_CameraReflectionsTexture, uv); }
+float4 GetAlbedo(float2 uv) { return tex2D(_CameraGBufferTexture0, uv); }
+float4 GetSpecular(float2 uv) { return tex2D(_CameraGBufferTexture1, uv); }
+float GetRoughness(float smoothness) { return max(min(_SmoothnessRange, 1 - smoothness), 0.05f); }
+float4 GetNormal(float2 uv)
+{
+	float4 gbuffer2 = tex2D(_CameraGBufferTexture2, uv);
 
-	return gbuffer2*2-1;
+	return gbuffer2 * 2 - 1;
 }
 
-float4 GetVelocity(float2 uv)    { return tex2D(_CameraMotionVectorsTexture, UnityStereoScreenSpaceUVAdjust(uv, _CameraMotionVectorsTexture_ST)); }
-float4 GetReflection(float2 uv)    { return tex2D(_ReflectionBuffer, UnityStereoScreenSpaceUVAdjust(uv, _ReflectionBuffer_ST)); }
+float4 GetVelocity(float2 uv) { return tex2D(_CameraMotionVectorsTexture, uv); }
+float4 GetReflection(float2 uv) { return tex2D(_ReflectionBuffer, uv); }
 
 float ComputeDepth(float4 clippos)
 {
@@ -125,28 +118,28 @@ float ComputeDepth(float4 clippos)
 #endif
 }
 
-float3 GetViewNormal (float3 normal)
+float3 GetViewNormal(float3 normal)
 {
-	float3 viewNormal =  mul((float3x3)_WorldToCameraMatrix, normal.rgb);
+	float3 viewNormal = mul((float3x3)_WorldToCameraMatrix, normal.rgb);
 	return normalize(viewNormal);
 }
 
 /*float GetDepth (sampler2D tex, float2 uv)
 {
-	return UNITY_SAMPLE_DEPTH (tex2Dlod(tex, float4(uv, 0, 0)));
+return UNITY_SAMPLE_DEPTH (tex2Dlod(tex, float4(uv, 0, 0)));
 }*/
 
 
-float GetDepth (sampler2D tex, float2 uv)
+float GetDepth(sampler2D tex, float2 uv)
 {
-	float z = tex2Dlod(_CameraDepthTexture, (float4(uv,0,0)));
-	#if defined(UNITY_REVERSED_Z)
-		z = 1.0f - z;
-	#endif
+	float z = tex2Dlod(_CameraDepthTexture, float4(uv, 0, 0));
+#if defined(UNITY_REVERSED_Z)
+	z = 1.0f - z;
+#endif
 	return z;
 }
 
-float3 GetScreenPos (float2 uv, float depth)
+float3 GetScreenPos(float2 uv, float depth)
 {
 	return float3(uv.xy * 2 - 1, depth);
 }
@@ -160,19 +153,19 @@ float3 GetViewRayFromUv(float2 uv)
 	return ray;
 }
 
-float3 GetWorlPos (float3 screenPos)
+float3 GetWorlPos(float3 screenPos)
 {
 	float4 worldPos = mul(_InverseViewProjectionMatrix, float4(screenPos, 1));
 	return worldPos.xyz / worldPos.w;
 }
 
-float3 GetViewPos (float3 screenPos)
+float3 GetViewPos(float3 screenPos)
 {
 	float4 viewPos = mul(_InverseProjectionMatrix, float4(screenPos, 1));
 	return viewPos.xyz / viewPos.w;
 }
-	
-float3 GetViewDir (float3 worldPos)
+
+float3 GetViewDir(float3 worldPos)
 {
 	return normalize(worldPos - _WorldSpaceCameraPos);
 }
@@ -180,10 +173,10 @@ float3 GetViewDir (float3 worldPos)
 // Deprecated since 5.4
 /*float2 ReprojectUV(float3 clipPosition)
 {
-	float4 previousClipPosition = mul(_PrevInverseViewProjectionMatrix, float4(clipPosition, 1.0f));
-	previousClipPosition.xyz /= previousClipPosition.w;
+float4 previousClipPosition = mul(_PrevInverseViewProjectionMatrix, float4(clipPosition, 1.0f));
+previousClipPosition.xyz /= previousClipPosition.w;
 
-	return float2(previousClipPosition.xy * 0.5f + 0.5f);
+return float2(previousClipPosition.xy * 0.5f + 0.5f);
 }*/
 
 static const float2 offset[4] =
@@ -194,7 +187,7 @@ static const float2 offset[4] =
 	float2(0, 2)
 };
 
-float RayAttenBorder (float2 pos, float value)
+float RayAttenBorder(float2 pos, float value)
 {
 	float borderDist = min(1.0 - max(pos.x, pos.y), min(pos.x, pos.y));
 	return saturate(borderDist > value ? 1.0 : borderDist / value);
@@ -203,7 +196,7 @@ float RayAttenBorder (float2 pos, float value)
 inline half2 CalculateMotion(float rawDepth, float2 inUV)
 {
 	float3 screenPos = GetScreenPos(inUV, rawDepth);
-	float4 worldPos = float4(GetWorlPos(screenPos),1);
+	float4 worldPos = float4(GetWorlPos(screenPos), 1);
 
 	float4 prevClipPos = mul(_PrevViewProjectionMatrix, worldPos);
 	float4 curClipPos = mul(_ViewProjectionMatrix, worldPos);

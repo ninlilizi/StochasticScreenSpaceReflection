@@ -47,6 +47,8 @@ float InterleavedGradientNoise (float2 pos, float2 random)
 // https://www.shadertoy.com/view/4sBSDW
 float Step1(float2 uv,float n)
 {
+	uv = UnityStereoTransformScreenSpaceTex(uv);
+
 	float 
 	a = 1.0,
 	b = 2.0,
@@ -68,6 +70,8 @@ float Step1(float2 uv,float n)
 
 float Step2(float2 uv,float n)
 {
+	uv = UnityStereoTransformScreenSpaceTex(uv);
+
 	float a=1.0,b=2.0,c=-2.0,t=1.0;   
 	return (4.0/(a*4.0+b*4.0-c))*(
 			  Step1(uv+float2(-1.0,-1.0)*t,n)*a+
@@ -84,6 +88,8 @@ float Step2(float2 uv,float n)
 
 float3 Step3T(float2 uv, float time)
 {
+	uv = UnityStereoTransformScreenSpaceTex(uv);
+
 	float a=Step2(uv, 0.07*(frac(time)+1.0));
 	float b=Step2(uv, 0.11*(frac(time)+1.0));
 	float c=Step2(uv, 0.13*(frac(time)+1.0));
