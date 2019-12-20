@@ -1,5 +1,7 @@
 # StochasticScreenSpaceReflection
 
+Please note, this was a learning experience and is not in a usuable state. Some of the projection matrixes are wrong, but are fixable if desired / requested.
+
 ![SSSR](https://dl.dropboxusercontent.com/u/1812933/Unity/SSSR.png)
 
 # Features
